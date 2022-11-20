@@ -12,7 +12,7 @@ Add the library to your source code, *after* loading p5 but *before* loading you
 
 ### Via CDN
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@davepagurek/p5.buildGeometry@0.0.1/build/p5.buildGeometry.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@davepagurek/p5.buildgeometry@0.0.1/build/p5.buildGeometry.js"></script>
 ```
 
 ### Self-hosted
@@ -24,16 +24,16 @@ Add the library to your source code, *after* loading p5 but *before* loading you
 ### Via Typescript
 First add the dependency:
 ```
-yarn add @davepagurek/p5.buildGeometry
+yarn add @davepagurek/p5.buildgeometry
 ```
 
 ```html
-import '@davepagurek/p5.buildGeometry'
+import '@davepagurek/p5.buildgeometry'
 ```
 
 ## Usage
 
-Create geometry in `setup` by calling `buildGeometry`. You need to pass in a **unique id** for your geometry, and a **function that constructs the shape.**
+Create geometry in `setup` by calling `buildgeometry`. You need to pass in a **unique id** for your geometry, and a **function that constructs the shape.**
 
 ```js
 const myGeom = buildGeometry('myGeom', (builder) => {
