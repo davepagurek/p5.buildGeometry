@@ -1,8 +1,8 @@
-let tree
+let shapes
 
 function setup() {
   createCanvas(600, 600, WEBGL)
-  tree = buildGeometry('tree', (builder) => {
+  shapes = buildGeometry('shapes', (builder) => {
     builder.push()
     builder.translate(100, -50)
     builder.scale(0.5)
@@ -10,6 +10,14 @@ function setup() {
     builder.cone()
     builder.pop()
     builder.cone()
+
+    builder.beginShape()
+    builder.vertex(-20, -50)
+    builder.quadraticVertex(
+      -40, -70,
+      0, -60
+    )
+    builder.endShape()
   })
 }
 
@@ -18,5 +26,5 @@ function draw() {
   lights()
   ambientMaterial(255)
   orbitControl()
-  model(tree)
+  model(shapes)
 }

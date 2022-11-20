@@ -97,22 +97,47 @@ export class GeometryBuilder {
     this.addGeometry(geometry)
   }
 
-  /**
-   * Equivalent to calling `beginShape()` and `endShape()` in P5.
-   * @param mode The mode you would normally pass to `beginShape()`
-   * @param callback A function that constructs the shape, which normally is
-   * placed between `beginShape()` and `endShape()`. A `p5.Graphics` is passed
-   * into the callback, and all shape calls must be called on it (e.g. instead
-   * of `vertex()`, you would call `graphics.vertex()`.)
-   */
-  shape(mode: Parameters<P5.Graphics['beginShape']>[0], callback: (graphics: P5.Graphics) => void) {
-    this.scratch.beginShape(mode)
-    callback(this.scratch)
-    this.scratch.endShape()
+  beginShape(...args: Parameters<P5.Graphics['beginShape']>) {
+    this.scratch.beginShape(...args)
+  }
+  endShape(...args: Parameters<P5.Graphics['endShape']>) {
+    this.scratch.endShape(...args)
 
     // @ts-ignore
-    this.addGeometry(this.scratch._renderer.immediateMode.geometry)
+    const geometry = this.scratch._renderer.immediateMode.geometry
+    const faces: [number, number, number][] = []
+    for (let i = 0; i < geometry.vertices.length; i += 3) {
+      faces.push([i, i + 1, i + 2])
+    }
+
+    this.addGeometry({
+      // @ts-ignore
+      ...geometry,
+      faces,
+    })
   }
+  vertex(...args: Parameters<P5.Graphics['vertex']>) {
+    this.scratch.vertex(...args)
+  }
+  bezierVertex(...args: Parameters<P5.Graphics['bezierVertex']>) {
+    this.scratch.bezierVertex(...args)
+  }
+  quadraticVertex(...args: Parameters<P5.Graphics['quadraticVertex']>) {
+    this.scratch.quadraticVertex(...args)
+  }
+  curveVertex(...args: Parameters<P5.Graphics['curveVertex']>) {
+    this.scratch.curveVertex(...args)
+  }
+  curveTightness(...args: Parameters<P5.Graphics['curveTightness']>) {
+    this.scratch.curveTightness(...args)
+  }
+  normal(...args: Parameters<P5.Graphics['normal']>) {
+    this.scratch.normal(...args)
+  }
+  fill(...args: Parameters<P5.Graphics['fill']>) {
+    this.scratch.fill(...args)
+  }
+
 
   plane(...args: Parameters<P5.Graphics['plane']>) {
     this.scratch.plane(...args)
