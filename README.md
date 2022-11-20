@@ -2,7 +2,7 @@
 Create a reusable `p5.Geometry` using the 3D primitives you're familiar with from p5!
 
 ## Why?
-P5's WebGL mode uses the GPU, and the GPU is fast! However, sending data back and forth between the CPU and GPU can slow your sketch down a lot. If you have a shape that won't change from frame to frame, you can create a <a href="https://p5js.org/reference/#/p5.Geometry"?>`p5.Geometry`</a>, which you draw with `model(yourGeometry)`, to avoid sending the same model data to the GPU every frame.
+P5's WebGL mode uses the GPU, and the GPU is fast! However, sending data back and forth between the CPU and GPU can slow your sketch down a lot. If you have a shape that won't change from frame to frame, you can create a <a href="https://p5js.org/reference/#/p5.Geometry">`p5.Geometry`</a>, which you draw with `model(yourGeometry)`, to avoid sending the same model data to the GPU every frame.
 
 Unfortunately, p5 on its own doesn't have any easy way to make a `p5.Geometry` other than manually placing vertices. This library lets you build one out of all the p5 functions you already know: 3D primitives, `rotate()`/`translate()`/`scale()`, `push()`/`pop()`, `beginShape()`/`vertex()`/`endShape()`, etc!
 
