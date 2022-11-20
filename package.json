@@ -25,7 +25,7 @@
   },
   "scripts": {
     "build": "yarn run webpack",
-    "deploy": "yarn build && yarn run gh-pages -d .",
+    "deploy": "yarn build && yarn run gh-pages -d . --remove .gitignore",
     "publish": "npm publish --access public"
   },
   "files": [
