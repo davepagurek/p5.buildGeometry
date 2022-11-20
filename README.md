@@ -27,7 +27,9 @@ First add the dependency:
 yarn add @davepagurek/p5.buildgeometry
 ```
 
-```html
+Yes, that's right, the dependency is named `@davepagurek/p5.buildgeometry` (all lowercase) even though the function name and repo name are `p5.buildGeometry` (with a capital G.) NPM doesn't like uppercase letters in packages 🥲
+
+```typescript
 import '@davepagurek/p5.buildgeometry'
 ```
 
