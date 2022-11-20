@@ -106,8 +106,21 @@ export class GeometryBuilder {
     // @ts-ignore
     const geometry = this.scratch._renderer.immediateMode.geometry
     const faces: [number, number, number][] = []
-    for (let i = 0; i < geometry.vertices.length; i += 3) {
-      faces.push([i, i + 1, i + 2])
+    // @ts-ignore
+    const shapeMode = this.scratch._renderer.immediateMode.shapeMode as P5.BEGIN_KIND
+
+    if (shapeMode === this.p5.TRIANGLE_STRIP) {
+      for (let i = 2; i < geometry.vertices.length; i++) {
+        if (i % 2 === 0) {
+          faces.push([i, i - 1, i - 2])
+        } else {
+          faces.push([i, i - 2, i - 1])
+        }
+      }
+    } else {
+      for (let i = 0; i < geometry.vertices.length; i += 3) {
+        faces.push([i, i + 1, i + 2])
+      }
     }
 
     this.addGeometry({
