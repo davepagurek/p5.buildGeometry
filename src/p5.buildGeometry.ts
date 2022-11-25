@@ -16,13 +16,24 @@ declare module 'P5' {
   interface __Graphics__ {
     buildGeometry(id: string, callback: GeometryBuilderCallback): P5.Geometry
     freeGeometry(geometry: P5.Geometry)
+    flatModelColors()
+    shadedModelColors()
+  }
+
+  interface RendererGL {
+    _vertexColorShader?: P5.Shader
+    _getVertexColorShader(): P5.Shader
   }
 }
 
 declare class p5 extends P5 {
   buildGeometry(id: string, callback: GeometryBuilderCallback): P5.Geometry
   freeGeometry(geometry: P5.Geometry)
+  flatModelColors()
+  shadedModelColors()
   static Graphics: new (...args: any[]) => P5.Graphics
+  static RendererGL: new (...args: any[]) => P5.RendererGL
+  static Shader: new (...args: any[]) => P5.Shader
 }
 
 type GeometryInput = Pick<P5.Geometry, 'vertices' | 'vertexNormals' | 'faces' | 'uvs' | 'edges' | 'vertexColors'>
@@ -90,7 +101,12 @@ export class GeometryBuilder {
     this.geometry.faces.push(...input.faces.map((f) => f.map((idx) => idx + startIdx) as [number, number, number]))
     this.geometry.uvs.push(...input.uvs)
     this.geometry.edges.push(...input.edges.map((edge) => edge.map((idx) => idx + startIdx) as [number, number]))
-    this.geometry.vertexColors.push(...input.vertexColors)
+    const vertexColors = [...input.vertexColors]
+    while (vertexColors.length < input.vertices.length * 4) {
+      // @ts-ignore
+      vertexColors.push(...this.scratch._renderer.curFillColor)
+    }
+    this.geometry.vertexColors.push(...vertexColors)
   }
 
   model(geometry: P5.Geometry) {
@@ -106,8 +122,21 @@ export class GeometryBuilder {
     // @ts-ignore
     const geometry = this.scratch._renderer.immediateMode.geometry
     const faces: [number, number, number][] = []
-    for (let i = 0; i < geometry.vertices.length; i += 3) {
-      faces.push([i, i + 1, i + 2])
+    // @ts-ignore
+    const shapeMode = this.scratch._renderer.immediateMode.shapeMode as P5.BEGIN_KIND
+
+    if (shapeMode === this.p5.TRIANGLE_STRIP || this.p5.QUAD_STRIP) {
+      for (let i = 2; i < geometry.vertices.length; i++) {
+        if (i % 2 === 0) {
+          faces.push([i, i - 1, i - 2])
+        } else {
+          faces.push([i, i - 2, i - 1])
+        }
+      }
+    } else {
+      for (let i = 0; i < geometry.vertices.length; i += 3) {
+        faces.push([i, i + 1, i + 2])
+      }
     }
 
     this.addGeometry({
@@ -288,3 +317,69 @@ function freeGeometry(shape: P5.Geometry) {
 
 p5.prototype.freeGeometry = freeGeometry
 p5.Graphics.prototype.freeGeometry = freeGeometry
+
+function flatModelColors() {
+  this.shader(this._renderer._getImmediateModeShader())
+}
+p5.prototype.flatModelColors = flatModelColors
+p5.Graphics.prototype.flatModelColors = flatModelColors
+
+const vertexColorShader = `
+precision highp float;
+precision highp int;
+
+attribute vec3 aPosition;
+attribute vec3 aNormal;
+attribute vec4 aVertexColor;
+attribute vec2 aTexCoord;
+
+uniform vec3 uAmbientColor[5];
+
+uniform mat4 uModelViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform mat3 uNormalMatrix;
+uniform int uAmbientLightCount;
+
+varying vec3 vNormal;
+varying vec2 vTexCoord;
+varying vec3 vViewPosition;
+varying vec3 vAmbientColor;
+
+void main(void) {
+
+  vec4 viewModelPosition = uModelViewMatrix * vec4(aPosition, 1.0);
+
+  // Pass varyings to fragment shader
+  vViewPosition = viewModelPosition.xyz;
+  gl_Position = uProjectionMatrix * viewModelPosition;  
+
+  vNormal = uNormalMatrix * aNormal;
+  vTexCoord = aTexCoord;
+
+  vAmbientColor = vec3(0.0);
+  for (int i = 0; i < 5; i++) {
+    if (i < uAmbientLightCount) {
+      vAmbientColor += uAmbientColor[i];
+    }
+  }
+  vAmbientColor *= aVertexColor.xyz;
+}
+`
+
+p5.RendererGL.prototype._getVertexColorShader = function() {
+  if (!this._vertexColorShader) {
+    this._vertexColorShader = new p5.Shader(
+      this,
+      vertexColorShader,
+      // @ts-ignore
+      this._getLightShader()._fragSrc,
+    );
+  }
+
+  return this._vertexColorShader;
+}
+function shadedModelColors() {
+  this.shader(this._renderer._getVertexColorShader())
+}
+p5.prototype.shadedModelColors = shadedModelColors
+p5.Graphics.prototype.shadedModelColors = shadedModelColors

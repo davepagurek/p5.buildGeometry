@@ -1,7 +1,7 @@
 {
-  "name": "@davepagurek/p5.buildGeometry",
-  "version": "0.0.1",
-  "main": "build/buildGeometry.js",
+  "name": "@davepagurek/p5.buildgeometry",
+  "version": "0.0.3",
+  "main": "build/buildgeometry.js",
   "author": "Dave Pagurek <dave@davepagurek.com>",
   "license": "MIT",
   "types": "build/buildGeometry.d.ts",

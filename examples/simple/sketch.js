@@ -18,6 +18,20 @@ function setup() {
       0, -60
     )
     builder.endShape()
+
+    builder.beginShape(TRIANGLE_STRIP)
+    for (let y = 20; y <= 60; y += 10) {
+      for (let x of [20, 60]) {
+        builder.vertex(x, y)
+      }
+    }
+    builder.endShape()
+
+    builder.beginShape()
+    builder.vertex(-100, -120)
+    builder.vertex(-120, -110)
+    builder.vertex(-105, -100)
+    builder.endShape()
   })
 }
 

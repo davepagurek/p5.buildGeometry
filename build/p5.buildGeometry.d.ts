@@ -13,6 +13,12 @@ declare module 'P5' {
     interface __Graphics__ {
         buildGeometry(id: string, callback: GeometryBuilderCallback): P5.Geometry;
         freeGeometry(geometry: P5.Geometry): any;
+        flatModelColors(): any;
+        shadedModelColors(): any;
+    }
+    interface RendererGL {
+        _vertexColorShader?: P5.Shader;
+        _getVertexColorShader(): P5.Shader;
     }
 }
 export declare class GeometryBuilder {

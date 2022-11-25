@@ -2,7 +2,7 @@
 Create a reusable `p5.Geometry` using the 3D primitives you're familiar with from p5!
 
 ## Why?
-P5's WebGL mode uses the GPU, and the GPU is fast! However, sending data back and forth between the CPU and GPU can slow your sketch down a lot. If you have a shape that won't change from frame to frame, you can create a <a href="https://p5js.org/reference/#/p5.Geometry"?>`p5.Geometry`</a>, which you draw with `model(yourGeometry)`, to avoid sending the same model data to the GPU every frame.
+P5's WebGL mode uses the GPU, and the GPU is fast! However, sending data back and forth between the CPU and GPU can slow your sketch down a lot. If you have a shape that won't change from frame to frame, you can create a <a href="https://p5js.org/reference/#/p5.Geometry">`p5.Geometry`</a>, which you draw with `model(yourGeometry)`, to avoid sending the same model data to the GPU every frame.
 
 Unfortunately, p5 on its own doesn't have any easy way to make a `p5.Geometry` other than manually placing vertices. This library lets you build one out of all the p5 functions you already know: 3D primitives, `rotate()`/`translate()`/`scale()`, `push()`/`pop()`, `beginShape()`/`vertex()`/`endShape()`, etc!
 
@@ -12,7 +12,7 @@ Add the library to your source code, *after* loading p5 but *before* loading you
 
 ### Via CDN
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@davepagurek/p5.buildGeometry@0.0.1/build/p5.buildGeometry.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@davepagurek/p5.buildgeometry@0.0.3/build/p5.buildGeometry.js"></script>
 ```
 
 ### Self-hosted
@@ -24,16 +24,18 @@ Add the library to your source code, *after* loading p5 but *before* loading you
 ### Via Typescript
 First add the dependency:
 ```
-yarn add @davepagurek/p5.buildGeometry
+yarn add @davepagurek/p5.buildgeometry
 ```
 
-```html
-import '@davepagurek/p5.buildGeometry'
+Yes, that's right, the dependency is named `@davepagurek/p5.buildgeometry` (all lowercase) even though the function name and repo name are `p5.buildGeometry` (with a capital G.) NPM doesn't like uppercase letters in packages 🥲
+
+```typescript
+import '@davepagurek/p5.buildgeometry'
 ```
 
 ## Usage
 
-Create geometry in `setup` by calling `buildGeometry`. You need to pass in a **unique id** for your geometry, and a **function that constructs the shape.**
+Create geometry in `setup` by calling `buildgeometry`. You need to pass in a **unique id** for your geometry, and a **function that constructs the shape.**
 
 ```js
 const myGeom = buildGeometry('myGeom', (builder) => {
@@ -64,7 +66,18 @@ freeGeometry(myGeom)
 myGraphic.freeGeometry(myGeom)
 ```
 
+If you want to write a shader that uses the builder's vertex colors, just make sure it has an `attribute vec4 aVertexColor` and p5 will send the colors to your shader. For convenience, there are two shader helpers that make use of the colors that mimic p5's standard shaders:
+```js
+// For full lighting (make sure you set up lights too):
+shadedModelColors()
+
+// For flat colors:
+flatModelColors()
+```
+
 ## Examples
+
+### A branching tree
 
 <table>
 <tr>
@@ -126,6 +139,86 @@ function draw() {
 <img src="https://user-images.githubusercontent.com/5315059/202913968-24da6b35-84b1-46a5-acce-fb07a32b6e33.png" />
 
 <a href="https://davepagurek.github.io/p5.buildGeometry/examples/tree">View live</a>
+
+</td>
+</tr>
+</table>
+
+### Using vertex colors
+
+<table>
+<tr>
+<td>
+
+```js
+let tree
+let button
+
+function setup() {
+  createCanvas(600, 600, WEBGL)
+  button = createButton('Regenerate')
+  button.mousePressed(makeTree)
+  makeTree()
+}
+
+function makeTree() {
+  if (tree) freeGeometry(tree)
+
+  tree = buildGeometry('tree', (builder) => {
+    const addBranch = (depth) => {
+      builder.push()
+      builder.translate(0, -50)
+      builder.fill('#857259')
+      builder.cylinder(15, 100)
+      builder.translate(0, -50)
+      if (depth >= 5) {
+        builder.fill('#8ae887')
+        builder.sphere(30)
+      } else {
+        const numChildren = round(random(1, 3))
+        for (let i = 0; i < numChildren; i++) {
+          builder.push()
+          builder.rotateZ(random(-0.3, 0.3) * PI)
+          builder.rotateY(random(TWO_PI))
+          addBranch(depth + 1)
+          builder.pop()
+        }
+      }
+      builder.pop()
+    }
+    builder.translate(0, 200)
+    builder.scale(0.7)
+    addBranch(0)
+  })
+}
+
+function draw() {
+  background(255)
+  orbitControl()
+  push()
+  noStroke()
+  if (millis() % 2000 < 1000) {
+    lights()
+    ambientMaterial(255)
+    shadedModelColors()
+  } else {
+    flatModelColors()
+  }
+  model(tree)
+  pop()
+}
+```
+
+</td>
+<td>
+
+Flat:
+<img src="https://user-images.githubusercontent.com/5315059/203878099-f5afa673-13aa-4b75-af92-140749b5d26a.png" />
+
+Shaded:
+<img src="https://user-images.githubusercontent.com/5315059/203878128-1b62a30e-3317-40e7-b6a7-25174c2834db.png" />
+
+<a href="https://davepagurek.github.io/p5.buildGeometry/examples/vertexColors">View live</a>
 
 </td>
 </tr>
