@@ -71,7 +71,7 @@ export class GeometryBuilder {
       const geom = scratchRenderer.retainedMode.geometry[id].model as P5.Geometry
       this.push()
       // @ts-ignore
-      this.applyMatrix(...scratchRenderer.uMVMatrix.mat4)
+      this.multiplyMatrix(...scratchRenderer.uMVMatrix.mat4)
       this.model(geom)
       this.pop()
     }
@@ -189,6 +189,9 @@ export class GeometryBuilder {
   triangle(...args: Parameters<P5.Graphics['triangle']>) {
     this.scratch.triangle(...args)
   }
+  circle(...args: Parameters<P5.Graphics['circle']>) {
+    this.scratch.circle(...args)
+  }
   ellipse(...args: Parameters<P5.Graphics['ellipse']>) {
     this.scratch.ellipse(...args)
   }
@@ -282,6 +285,10 @@ export class GeometryBuilder {
   applyMatrix(...args: number[]) {
     this.stack.pop()
     this.stack.push(new DOMMatrix(args))
+  }
+
+  multiplyMatrix(...args: number[]) {
+    this.transform().multiplySelf(new DOMMatrix(args))
   }
 
   resetMatrix() {
