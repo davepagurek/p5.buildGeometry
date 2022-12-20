@@ -12,7 +12,7 @@ Add the library to your source code, *after* loading p5 but *before* loading you
 
 ### Via CDN
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@davepagurek/p5.buildgeometry@0.0.4/build/p5.buildGeometry.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@davepagurek/p5.buildgeometry@0.0.5/build/p5.buildGeometry.js"></script>
 ```
 
 ### Self-hosted

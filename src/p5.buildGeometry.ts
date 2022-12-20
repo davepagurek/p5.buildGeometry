@@ -125,13 +125,17 @@ export class GeometryBuilder {
     // @ts-ignore
     const shapeMode = this.scratch._renderer.immediateMode.shapeMode as P5.BEGIN_KIND
 
-    if (shapeMode === this.p5.TRIANGLE_STRIP || this.p5.QUAD_STRIP) {
+    if (shapeMode === this.p5.TRIANGLE_STRIP || shapeMode === this.p5.QUAD_STRIP) {
       for (let i = 2; i < geometry.vertices.length; i++) {
         if (i % 2 === 0) {
           faces.push([i, i - 1, i - 2])
         } else {
           faces.push([i, i - 2, i - 1])
         }
+      }
+    } else if (shapeMode === this.p5.TRIANGLE_FAN) {
+      for (let i = 2; i < geometry.vertices.length; i++) {
+        faces.push([0, i - 1, i])
       }
     } else {
       for (let i = 0; i < geometry.vertices.length; i += 3) {
