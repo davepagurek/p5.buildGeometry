@@ -24,6 +24,10 @@ declare module 'P5' {
     _vertexColorShader?: P5.Shader
     _getVertexColorShader(): P5.Shader
   }
+
+  interface p5InstanceExtensions {
+    __buildGeometry_scratch?: P5.Graphics
+  }
 }
 
 declare class p5 extends P5 {
@@ -50,7 +54,10 @@ export class GeometryBuilder {
     this.geometry = new p5.constructor.Geometry(1, 1)
     this.geometry.gid = id
     this.stack = [new DOMMatrix()]
-    this.scratch = this.p5.createGraphics(1, 1, this.p5.WEBGL)
+    if (!this.p5.__buildGeometry_scratch) {
+      this.p5.__buildGeometry_scratch = this.p5.createGraphics(1, 1, this.p5.WEBGL)
+    }
+    this.scratch = this.p5.__buildGeometry_scratch
 
     // @ts-ignore
     const scratchRenderer = this.scratch._renderer as P5.Renderer
@@ -81,7 +88,6 @@ export class GeometryBuilder {
    * Finishes building geometry and returns it.
    */
   get() {
-    this.scratch.remove()
     return this.geometry
   }
 
@@ -351,10 +357,13 @@ uniform mat4 uProjectionMatrix;
 uniform mat3 uNormalMatrix;
 uniform int uAmbientLightCount;
 
+uniform vec4 uMaterialColor;
+
 varying vec3 vNormal;
 varying vec2 vTexCoord;
 varying vec3 vViewPosition;
 varying vec3 vAmbientColor;
+varying vec4 vColor;
 
 void main(void) {
 
@@ -374,6 +383,8 @@ void main(void) {
     }
   }
   vAmbientColor *= aVertexColor.xyz;
+
+  vColor = aVertexColor;
 }
 `
 
